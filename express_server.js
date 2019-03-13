@@ -7,6 +7,21 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function randomShotURL() {
+  let str = "";
+  let arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+      'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+      'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+      //'-','.','~','!','@','#','$','%','^','&','*','(',')','_',':','<','>','?'];
+  for (let i = 0; i < 6; i++) {
+    let pos = Math.round(Math.random() * (arr.length - 1));
+    str += arr[pos];
+  }
+  return str;
+}
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -32,8 +47,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  var shortURL = randomShotURL();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect("/urls/");
 });
 
 app.get("/urls/new", (req, res) => {
@@ -49,8 +65,32 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-   const longURL = urlDatabase[req.params.shortURL];
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[req.params.shortURL];
+  if(longURL.search("http://") < 0) {
+    longURL = "http://" + longURL;
+  }
   res.redirect(longURL);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  var short = req.params.shortURL;
+  delete urlDatabase[short];
+  res.redirect("/urls");
+});
+
+app.get("/urls/:shortURL/update", (req, res) => {
+  res.redirect("/urls/" + req.params.shortURL);
+});
+
+app.post("/urls/:shortURL/update", (req, res) => {
+  var long = req.body.longURL;
+  if(long.search("http://") < 0) {
+    long = "http://" + long;
+  }
+  var short = req.params.shortURL;
+  urlDatabase[short] = long;
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
