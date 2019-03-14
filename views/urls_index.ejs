@@ -1,37 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <title>TinyApp</title>
   </head>
-
   <body style="font-size:20px; padding:50px;">
       <header>
-          <% include ./partials/_header %>
-          <hr>
+        <% include ./partials/_header %>
+        <hr>
       </header>
-          <h3><b>My URLs</b></h3>
+        <h3><b>My URLs</b></h3>
       <div class="alert alert-info" role="alert" style="width: 235px">
         <a class="alert-link" href="/urls/new">
           Creat New TinyURL
         </a>
       </div>
     <hr>
-    <% for(var key in urls) { %>
-      <form  class="form-inline" method="POST" action="/urls/<%= key%>/delete" style="margin: 1em">
-        <li>
-          <b><%= key%></b> -> <%=urls[key]%>
-          <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>
-          <button type="submit" class="btn btn-danger" >Delete</button>
-        </li>
-      </form>
-    <% } %>
-
+    <table>
+      <% for(var key in urls) { %>
+        <tr>
+          <td>
+            <li>
+              <b><%= key%></b> ->
+              <a class="alert-link" href="/u/<%= key%>">
+                <%=urls[key]%>
+              </a>
+            </li>
+          </td>
+          <td>
+            <form class="form-inline" method="GET" action="/urls/<%= key%>/update"  style="margin: 1em">
+              <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
+              <button type="submit" class="btn btn-info" >Edit</button>
+            </form>
+          </td>
+          <td>
+            <form class="form-inline" method="POST" action="/urls/<%= key%>/delete">
+              <button type="submit" class="btn btn-danger" >Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% } %>
+    </table>
   </body>
 </html>
 
