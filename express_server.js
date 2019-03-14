@@ -43,13 +43,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// app.get("/login", (req, res) => {
-//   let templateVars = {
-//     username: req.cookies["username"],
-//   };
-//   res.render("partials/_header", templateVars);
-// });
-
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls/");
@@ -70,7 +63,11 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   var shortURL = randomShotURL();
-  urlDatabase[shortURL] = req.body.longURL;
+  var longURL = req.body.longURL;
+  if(longURL.search("http://") < 0) {
+    longURL = "http://" + longURL;
+  }
+  urlDatabase[shortURL] = longURL;
   res.redirect("/urls/");
 });
 
@@ -122,7 +119,3 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-function generateRandomString() {
-
-}

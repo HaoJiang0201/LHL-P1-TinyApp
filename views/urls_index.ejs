@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
-<body style="font-size:20px; padding:50px;">
-  <header>
-      <% include ./partials/_header %>
-      <h3><b>My URLs</b></h3>
-  </header>
-  <a class="" href="/urls/new">
-    Creat New TinyURL<br><br>
-  </a>
-  <% for(var key in urls) { %>
-    <li>
-      <form method="POST" action="/urls/<%= key%>/delete">
-        <b><%= key%></b> -> <%=urls[key]%>
-        <a class="" href="/urls/<%= key%>/update">Edit</a>
-        <button type="delete" class="btn btn-primary">Delete</button>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>TinyApp</title>
+  </head>
+
+  <body style="font-size:20px; padding:50px;">
+      <header>
+          <% include ./partials/_header %>
+          <hr>
+      </header>
+          <h3><b>My URLs</b></h3>
+      <div class="alert alert-info" role="alert" style="width: 235px">
+        <a class="alert-link" href="/urls/new">
+          Creat New TinyURL
+        </a>
+      </div>
+    <hr>
+    <% for(var key in urls) { %>
+      <form  class="form-inline" method="POST" action="/urls/<%= key%>/delete" style="margin: 1em">
+        <li>
+          <b><%= key%></b> -> <%=urls[key]%>
+          <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>
+          <button type="submit" class="btn btn-danger" >Delete</button>
+        </li>
       </form>
-    </li>
-  <% } %>
-</body>
+    <% } %>
+
+  </body>
 </html>
+
+
