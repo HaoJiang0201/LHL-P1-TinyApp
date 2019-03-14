@@ -4,12 +4,20 @@ var app = express();
 app.use(cookieParser());
 var PORT = 8080; // default port 8080
 
+const users = {
+  "Admin": {
+    id: "000000",
+    email: "polatouche0201@gmail.com",
+    password: "123456"
+  },
+}
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-function randomShotURL() {
+function randomString(size) {
   let str = "";
   let arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
@@ -17,7 +25,7 @@ function randomShotURL() {
       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
       'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
       //'-','.','~','!','@','#','$','%','^','&','*','(',')','_',':','<','>','?'];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < size; i++) {
     let pos = Math.round(Math.random() * (arr.length - 1));
     str += arr[pos];
   }
@@ -54,11 +62,43 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login_register");
+  let templateVars = {
+    username: req.cookies["username"],
+    login_register: true
+  };
+  res.render("login_register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  var usrID = randomString(12);
+  var usrEmail = req.body.email;
+  var usrPassword = req.body.password;
+  var usrPswConfirm = req.body.confirm_password;
+  if(usrPassword !== usrPswConfirm) {
+    let templateVars = {
+      username: req.cookies["username"],
+      login_register: false,
+      password_confirm: false
+    };
+    res.render("login_register", templateVars);
+  } else {
+    users[usrID] = {};
+    users[usrID].id = usrID;
+    users[usrID].email = usrEmail;
+    users[usrID].password = usrPassword;
+    res.cookie('username', usrEmail);
+    res.redirect("/urls");
+    //res.redirect("/register");
+  }
 });
 
 app.get("/register", (req, res) => {
-  res.render("login_register");
+  let templateVars = {
+    username: req.cookies["username"],
+    login_register: false,
+    password_confirm: true
+  };
+  res.render("login_register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -70,7 +110,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  var shortURL = randomShotURL();
+  var shortURL = randomString(6);
   var longURL = req.body.longURL;
   if(longURL.search("http://") < 0) {
     longURL = "http://" + longURL;
@@ -125,5 +165,15 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tiny App listening on port ${PORT}!`);
 });
+
+// Tips:
+// app.get("/treasure", (req, res) => {
+//   const user = req.cookies.usename && users[req.cookies.username];
+//   if(user) {
+//    res.render('treasure', {user:usr});
+//   } else {
+//    res.redirect("/");
+//   }
+// });
