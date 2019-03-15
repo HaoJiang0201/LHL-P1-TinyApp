@@ -19,12 +19,13 @@ const users = {
     id: "Admin",
     email: "polatouche0201@gmail.com",
     password: "123456"
-  },
+  }
 }
 // Shot-Long URL Database (Object) 存储长短url链接的对象
+
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", UID: "example" },
+  "9sm5xK": { longURL: "http://www.google.com", UID: "example"
 };
 // Random Generate and return a string by given the "string length" to the function
 // 给定字符串长度，随机生成并返回一个字符串
@@ -170,6 +171,7 @@ app.get("/login", (req, res) => { //
 
 app.get("/logout", (req, res) => {
   res.clearCookie("userID");
+  urlDatabase = urlSample;
   res.redirect("/urls/");
 });
 
