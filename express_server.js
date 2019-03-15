@@ -24,8 +24,8 @@ const users = {
 // Shot-Long URL Database (Object) 存储长短url链接的对象
 
 var urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", UID: "example" },
-  "9sm5xK": { longURL: "http://www.google.com", UID: "example"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", UID: "Admin" },
+  "9sm5xK": { longURL: "http://www.google.com", UID: "Admin" }
 };
 // Random Generate and return a string by given the "string length" to the function
 // 给定字符串长度，随机生成并返回一个字符串
@@ -96,7 +96,7 @@ app.post("/register", (req, res) => {
     };
     res.render("login_register", templateVars);
   } else {
-    if(usrPassword < 4) { // Password Digits Number Check
+    if(usrPassword.length < 4) { // Password Digits Number Check
       let templateVars = {
         userInfo: false,
         login_register: false,
@@ -171,7 +171,6 @@ app.get("/login", (req, res) => { //
 
 app.get("/logout", (req, res) => {
   res.clearCookie("userID");
-  urlDatabase = urlSample;
   res.redirect("/urls/");
 });
 
@@ -199,8 +198,10 @@ app.post("/urls", (req, res) => {
   if(longURL.search("http://") < 0) {
     longURL = "http://" + longURL;
   }
-  urlDatabase[shortURL] = longURL;
-  res.redirect("/urls/");
+  urlDatabase[shortURL] = {};
+  urlDatabase[shortURL].longURL = longURL;
+  urlDatabase[shortURL].UID = req.cookies["userID"];
+  res.redirect("/urls");
 });
 
 // 4. Create New Short URL 新建URL链接缩写
@@ -249,14 +250,17 @@ app.post("/urls/:shortURL/update", (req, res) => {
     long = "http://" + long;
   }
   var short = req.params.shortURL;
-  urlDatabase[short] = long;
+  if(!urlDatabase[short]) {
+    urlDatabase[short] = {};
+  }
+  urlDatabase[short].longURL = long;
   res.redirect("/urls");
 });
 
 // 6. Jump to Long URL from Short URL 根据对应关系跳转到长链接
 app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[shortURL].longURL;
   if(longURL.search("http://") < 0) {
     longURL = "http://" + longURL;
   }

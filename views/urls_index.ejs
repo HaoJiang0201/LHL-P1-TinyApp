@@ -47,18 +47,18 @@
 
     <table class="text-center" align="center">
       <tr>
-        <td>
-          <a class="alert-link" style="margin: 1em">
-            <% if(userInfo === false){ %>
-              Tiny URL Example List
-            <% } else { %>
-              My Tiny URL List
-            <% } %>
-          </a>
-        </td>
-        <td>
-          |
-        </td>
+        <% if(userInfo === false){ %>
+
+        <% } else { %>
+          <td>
+            <a class="alert-link" style="margin: 1em">
+              Tiny URL List
+            </a>
+          </td>
+          <td>
+            |
+          </td>
+        <% } %>
         <td>
           <% if(userInfo === false){ %>
             <a class="alert-link" href="/login" style="margin: 1em">
@@ -70,32 +70,46 @@
         </td>
       </tr>
     </table>
-
-    <table class="text-left" align="center">
-      <% for(var key in urls) { %>
-        <tr>
-          <td>
-            <li>
-              <b><%= key%></b> ->
-              <a class="alert-link" href="/u/<%= key%>">
-                <%=urls[key]%>
-              </a>
-            </li>
-          </td>
-          <td>
-            <form class="form-inline" method="GET" action="/urls/<%= key%>/update"  style="margin: 1em">
-              <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
-              <button type="submit" class="btn btn-info" >Edit</button>
-            </form>
-          </td>
-          <td>
-            <form class="form-inline" method="POST" action="/urls/<%= key%>/delete">
-              <button type="submit" class="btn btn-danger" >Delete</button>
-            </form>
-          </td>
-        </tr>
-      <% } %>
-    </table>
+    <br>
+    <% if(userInfo === false){ %>
+      <div class="alert alert-info text-center" role="alert">
+        <h5>Here is an example of Tiny URL:</h5>
+        <br>
+        <h5><b>b2xVn2 -> http://www.lighthouselabs.ca</b></h5>
+        <br>
+        <h5>Login to create your own Tiny URL List.</h5>
+      </div>
+    <% } else { %>
+      <table class="text-left" align="center">
+        <tr  style="margin: 1em">
+          <% for(var key in urls) { %>
+            <td>
+              <form class="form-inline" style="margin: 1em">
+                <li>
+                  <b><%= key%></b> ->
+                  <a class="alert-link" href="/u/<%= key%>">
+                      <%=urls[key].longURL%>
+                  </a>
+                </li>
+              </form>
+            </td>
+            <% if(urls[key].UID === userInfo.id){ %>
+              <td>
+                <form class="form-inline" method="GET" action="/urls/<%= key%>/update" style="margin: 1em">
+                  <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
+                  <button type="submit" class="btn btn-info" >Edit</button>
+                </form>
+              </td>
+              <td>
+                <form class="form-inline" method="POST" action="/urls/<%= key%>/delete">
+                  <button type="submit" class="btn btn-danger" >Delete</button>
+                </form>
+              </td>
+            <% } %>
+          </tr>
+        <% } %>
+      </table>
+    <% } %>
 
     <% include ./partials/_footer %>
   </body>
