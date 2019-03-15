@@ -3,57 +3,81 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Bootstrap CSS -->
+    <meta name="description" content="">
+    <meta name="author" content="Hao Jiang">
+    <meta name="generator" content="Hao Jiang v1.0.0">
+    <title>Tiny App · My URLs List</title>
+<!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <style>
+      html,
       body {
         height: 100%;
       }
       body {
+        display: -ms-flexbox;
+        -ms-flex-align: center;
+        align-items: center;
         padding-top: 40px;
         padding-bottom: 40px;
         background-color: #b3d7ff;
       }
     </style>
-    <title>TinyApp</title>
   </head>
-  <body style="font-size:20px; padding:50px;">
-      <header>
-        <% include ./partials/_header %>
-        <hr>
-      </header>
-        <h3><b>My URLs</b></h3>
-      <div class="alert alert-info" role="alert" style="width: 235px">
-        <a class="alert-link" href="/urls/new">
-          Creat New TinyURL
-        </a>
-      </div>
-    <hr>
-    <table>
-      <% for(var key in urls) { %>
-        <tr>
-          <td>
-            <li>
-              <b><%= key%></b> ->
-              <a class="alert-link" href="/u/<%= key%>">
-                <%=urls[key]%>
-              </a>
-            </li>
-          </td>
-          <td>
-            <form class="form-inline" method="GET" action="/urls/<%= key%>/update"  style="margin: 1em">
-              <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
-              <button type="submit" class="btn btn-info" >Edit</button>
-            </form>
-          </td>
-          <td>
-            <form class="form-inline" method="POST" action="/urls/<%= key%>/delete">
-              <button type="submit" class="btn btn-danger" >Delete</button>
-            </form>
-          </td>
-        </tr>
-      <% } %>
-    </table>
+
+  <body style="font-size:20px; padding:50px;" class="text-center">
+    <header>
+      <% include ./partials/_header %>
+    </header>
+    <h1 class="h3 mb-3 font-weight-normal">
+      My URLs
+    </h1>
+    <a class="alert-link" href="/urls/new">
+      Creat New TinyURL
+    </a>
+
+      <table class="text-left" align="center">
+        <% for(var key in urls) { %>
+          <tr>
+            <td>
+              <li>
+                <b><%= key%></b> ->
+                <a class="alert-link" href="/u/<%= key%>">
+                  <%=urls[key]%>
+                </a>
+              </li>
+            </td>
+            <td>
+              <form class="form-inline" method="GET" action="/urls/<%= key%>/update"  style="margin: 1em">
+                <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
+                <button type="submit" class="btn btn-info" >Edit</button>
+              </form>
+            </td>
+            <td>
+              <form class="form-inline" method="POST" action="/urls/<%= key%>/delete">
+                <button type="submit" class="btn btn-danger" >Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+
+    <% include ./partials/_footer %>
   </body>
 </html>
 

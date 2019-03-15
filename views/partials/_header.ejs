@@ -1,26 +1,28 @@
 <!-- views/partials/_header.ejs -->
 
 <h1><b>Tiny App</b></h1>
-
-<h5>User Name:</h5>
-
-  <% if(username){ %>
-
-    <form method="POST" action="/logout">
-      <h3><%= username%></h3>
-      <button type="logout" class="btn btn-primary">Logout</button>
-    </form>
-
-  <% } else{ %>
-
-    <form method="POST" action="/login">
-
-      <input class="form-control" type="text" name="userName" placeholder="" style="width: 300px">
-      <br>
-      <button type="submit" class="btn btn-primary">Login</button>
-
-    </form>
-
-  <% } %>
-
+<a class="alert-link" href="/urls">
+  <img class="mb-4" src="https://github.com/Polatouche0201/W2_TinyApp/blob/master/assets/URL_Icon.png?raw=true" alt="" width="72" height="72" href="/urls">
+</a>
 <br>
+<a class="alert-link" href="/urls">
+  Home
+</a>
+|
+<% if(userInfo === false){ %>
+  <a class="alert-link" href="/login">
+    Login
+  </a>
+  |
+  <a class="alert-link" href="/register">
+    Register
+  </a>
+<% } else { %>
+  <%= userInfo.email%>
+  |
+  <a class="alert-link" href="/logout">
+    Logout
+  </a>
+<% } %>
+
+<hr>

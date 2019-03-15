@@ -16,7 +16,7 @@ var PORT = 8080; // default port 8080
 // User Info. 用户信息
 const users = {
   "Admin": {
-    id: "000000",
+    id: "Admin",
     email: "polatouche0201@gmail.com",
     password: "123456"
   },
@@ -42,6 +42,18 @@ function randomString(size) {
   }
   return str;
 }
+// Check if email exist in the User Database
+// 检查邮箱是否已存在
+function checkEmailExist(newEmail) {
+  var checkResult = "";  // No such email
+  for(key in users) {
+    var usrInfo = users[key];
+    if (usrInfo.email === newEmail) {
+      checkResult = usrInfo.id;
+    }
+  }
+  return checkResult;
+}
 
 /******** App Settings & Server Up 应用设置，服务器启动、监听 ********/
 var app = express();
@@ -54,67 +66,128 @@ app.listen(PORT, () => {
 });
 
 /******** All GET and POST Activities App所有的活动监控 ********/
-// 1. Main Page 主页
+// 1. Home Page 主页
 app.get("/", (req, res) => {
-  res.redirect("/login");
+  res.redirect("/urls");
 });
 
 // 2. Register， Login & Logout 注册、登录和登出
-app.post("/register", (req, res) => {   // 从
+app.post("/register", (req, res) => {
+  // Get User Data
   var usrID = randomString(12);
   var usrEmail = req.body.email;
   var usrPassword = req.body.password;
   var usrPswConfirm = req.body.confirm_password;
-  if(usrPassword !== usrPswConfirm) {
+  // if(usrEmail === "" || usrPassword  === "" || usrPswConfirm === "") {
+  //   let templateVars = {
+  //     userInfo: false,
+  //     login_register: false,
+  //     errorID: -1
+  //   };
+  //   res.render("login_register", templateVars);
+  // }
+  // Password Check
+  if(usrPassword !== usrPswConfirm) { // Password and Confirm Password
     let templateVars = {
-      userID: req.cookies["userID"],
+      userInfo: false,
       login_register: false,
-      password_confirm: false
+      errorID: 1
     };
     res.render("login_register", templateVars);
   } else {
-    users[usrID] = {};
-    users[usrID].id = usrID;
-    users[usrID].email = usrEmail;
-    users[usrID].password = usrPassword;
-    res.cookie('userID', usrEmail);
-    res.redirect("/urls");
-    //res.redirect("/register");
+    if(usrPassword < 4) { // Password Digits Number Check
+      let templateVars = {
+        userInfo: false,
+        login_register: false,
+        errorID: 2
+      };
+      res.render("login_register", templateVars);
+    } else {
+      var emailCheck = checkEmailExist(usrEmail);
+      if(emailCheck !== "") {
+        let templateVars = { // Email Exist
+          userInfo: false,
+          login_register: false,
+          errorID: 3
+        };
+        res.render("login_register", templateVars);
+      } else {
+        users[usrID] = {};
+        users[usrID].id = usrID;
+        users[usrID].email = usrEmail;
+        users[usrID].password = usrPassword;
+        res.cookie('userID', usrID);
+        res.redirect("/urls");
+      }
+    }
   }
 });
 
 app.get("/register", (req, res) => {
+  let id = req.cookies["userID"];
   let templateVars = {
-    userID: req.cookies["userID"],
+    userInfo: false,
     login_register: false,
-    password_confirm: true
-  };
+    errorID: 0
+  }
   res.render("login_register", templateVars);
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('userID', req.body.userName);
-  res.redirect("/urls");
+  var inputEmail = req.body.email;
+  var password = req.body.password;
+  var matchedID = checkEmailExist(inputEmail);
+  if(matchedID !== "") {
+    if(password === users[matchedID].password) {
+      res.cookie('userID', matchedID);
+      res.redirect("/urls");
+    } else {
+      let templateVars = {
+        userInfo: false,
+        login_register: true,
+        errorID: 2
+      }
+      res.render("login_register", templateVars);
+    }
+  } else {
+    let templateVars = {
+      userInfo: false,
+      login_register: true,
+      errorID: 1
+    }
+    res.render("login_register", templateVars);
+  }
 });
 
 app.get("/login", (req, res) => { //
   let templateVars = {
-    //username: req.cookies["userID"],
-    login_register: true
-  };
+    userInfo: false,
+    login_register: true,
+    errorID: 0
+  }
   res.render("login_register", templateVars);
 });
 
-app.post("/logout", (req, res) => {
+app.get("/logout", (req, res) => {
   res.clearCookie("userID");
   res.redirect("/urls/");
 });
 
+// 3. Main Function Page (Home) : Short-Long URL Editor 主功能界面：长短URL编辑器（主页）
 app.get("/urls", (req, res) => {
-  let templateVars = {
-    userID: req.cookies["userID"],
-    urls: urlDatabase
-  };
+  let id = req.cookies["userID"];
+  let templateVars = {};
+  if(users[id]) {
+    templateVars = {
+      userInfo: users[id],
+      urls: urlDatabase
+    };
+  } else {
+    templateVars = {
+      userInfo: false,
+      urls: urlDatabase
+    };
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -128,35 +201,40 @@ app.post("/urls", (req, res) => {
   res.redirect("/urls/");
 });
 
+// 4. Create New Short URL 新建URL链接缩写
 app.get("/urls/new", (req, res) => {
-  let templateVars = {
-    userID: req.cookies["userID"],
-  };
+  let id = req.cookies["userID"];
+  let templateVars = {};
+  if(users[id]) {
+    templateVars = {
+      userInfo: users[id]
+    };
+  } else {
+    templateVars = {
+      userInfo: false
+    };
+  }
   res.render("urls_new", templateVars);
 });
 
+// 5. Edit & Update Exist Short URL 编辑更新已有短URL
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = {
-    userID: req.cookies["userID"],
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
-  };
-  res.render("urls_show", templateVars);
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[req.params.shortURL];
-  if(longURL.search("http://") < 0) {
-    longURL = "http://" + longURL;
+  let id = req.cookies["userID"];
+  let templateVars = {};
+  if(users[id]) {
+    templateVars = {
+      userInfo: users[id],
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL]
+    };
+  } else {
+    templateVars = {
+      userInfo: false,
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL]
+    };
   }
-  res.redirect(longURL);
-});
-
-app.post("/urls/:shortURL/delete", (req, res) => {
-  var short = req.params.shortURL;
-  delete urlDatabase[short];
-  res.redirect("/urls");
+  res.render("urls_show", templateVars);
 });
 
 app.get("/urls/:shortURL/update", (req, res) => {
@@ -173,7 +251,22 @@ app.post("/urls/:shortURL/update", (req, res) => {
   res.redirect("/urls");
 });
 
+// 6. Jump to Long URL from Short URL 根据对应关系跳转到长链接
+app.get("/u/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[req.params.shortURL];
+  if(longURL.search("http://") < 0) {
+    longURL = "http://" + longURL;
+  }
+  res.redirect(longURL);
+});
 
+// 7. Delete Exist URL 从列表中删除已有链接
+app.post("/urls/:shortURL/delete", (req, res) => {
+  var short = req.params.shortURL;
+  delete urlDatabase[short];
+  res.redirect("/urls");
+});
 
 // X. Test Pages
 // app.get("/hello", (req, res) => {
