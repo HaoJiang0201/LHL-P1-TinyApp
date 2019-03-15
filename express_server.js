@@ -10,6 +10,7 @@
 var express = require("express");
 var cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 /******** Global Settings 全局设置、初始化 ********/
 var PORT = 8080; // default port 8080
@@ -116,7 +117,7 @@ app.post("/register", (req, res) => {
         users[usrID] = {};
         users[usrID].id = usrID;
         users[usrID].email = usrEmail;
-        users[usrID].password = usrPassword;
+        users[usrID].password = bcrypt.hashSync(usrPassword, 10);
         res.cookie('userID', usrID);
         res.redirect("/urls");
       }
@@ -139,7 +140,8 @@ app.post("/login", (req, res) => {
   var password = req.body.password;
   var matchedID = checkEmailExist(inputEmail);
   if(matchedID !== "") {
-    if(password === users[matchedID].password) {
+    var passwordCheck = bcrypt.compareSync(password, users[matchedID].password);
+    if(passwordCheck) {
       res.cookie('userID', matchedID);
       res.redirect("/urls");
     } else {
