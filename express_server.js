@@ -7,26 +7,27 @@
 /************************************/
 
 /******** Extra Module Connect 外部模块连接  ********/
-var express = require("express");
-var cookieParser = require('cookie-parser');
-const bodyParser = require("body-parser");
-const bcrypt = require('bcrypt');
+var express = require("express"); // Server Creator
+var cookieParser = require('cookie-parser');  // Cookie Creator
+const bodyParser = require("body-parser");  // ???
+const bcrypt = require('bcrypt'); //  Password Security
+var cookieSession = require('cookie-session');  // Cookie Security
 
 /******** Global Settings 全局设置、初始化 ********/
 var PORT = 8080; // default port 8080
 // User Info. 用户信息
 const users = {
-  "Admin": {
-    id: "Admin",
-    email: "polatouche0201@gmail.com",
-    password: "123456"
-  }
+  // "Admin": {
+  //   id: "Admin",
+  //   email: "polatouche0201@gmail.com",
+  //   password: "123456"
+  // }
 }
 // Shot-Long URL Database (Object) 存储长短url链接的对象
 
 var urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", UID: "Admin" },
-  "9sm5xK": { longURL: "http://www.google.com", UID: "Admin" }
+  // "b2xVn2": { longURL: "http://www.lighthouselabs.ca", UID: "Admin" },
+  // "9sm5xK": { longURL: "http://www.google.com", UID: "Admin" }
 };
 // Random Generate and return a string by given the "string length" to the function
 // 给定字符串长度，随机生成并返回一个字符串
@@ -61,6 +62,11 @@ function checkEmailExist(newEmail) {
 var app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
+
 app.set("view engine", "ejs");
 
 app.listen(PORT, () => {
@@ -80,14 +86,6 @@ app.post("/register", (req, res) => {
   var usrEmail = req.body.email;
   var usrPassword = req.body.password;
   var usrPswConfirm = req.body.confirm_password;
-  // if(usrEmail === "" || usrPassword  === "" || usrPswConfirm === "") {
-  //   let templateVars = {
-  //     userInfo: false,
-  //     login_register: false,
-  //     errorID: -1
-  //   };
-  //   res.render("login_register", templateVars);
-  // }
   // Password Check
   if(usrPassword !== usrPswConfirm) { // Password and Confirm Password
     let templateVars = {
@@ -118,7 +116,8 @@ app.post("/register", (req, res) => {
         users[usrID].id = usrID;
         users[usrID].email = usrEmail;
         users[usrID].password = bcrypt.hashSync(usrPassword, 10);
-        res.cookie('userID', usrID);
+        //res.cookie('userID', usrID);
+        req.session.user_id = usrID;
         res.redirect("/urls");
       }
     }
@@ -126,7 +125,8 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let id = req.cookies["userID"];
+  //let id = req.cookies["userID"];
+  let id = req.session.user_id;
   let templateVars = {
     userInfo: false,
     login_register: false,
@@ -142,7 +142,8 @@ app.post("/login", (req, res) => {
   if(matchedID !== "") {
     var passwordCheck = bcrypt.compareSync(password, users[matchedID].password);
     if(passwordCheck) {
-      res.cookie('userID', matchedID);
+      //res.cookie('userID', matchedID);
+      req.session.user_id = matchedID;
       res.redirect("/urls");
     } else {
       let templateVars = {
@@ -172,13 +173,16 @@ app.get("/login", (req, res) => { //
 });
 
 app.get("/logout", (req, res) => {
-  res.clearCookie("userID");
+  //res.clearCookie("userID");
+  //res.clearCookie("user_id");
+  req.session.user_id = "";
   res.redirect("/urls/");
 });
 
 // 3. Main Function Page (Home) : Short-Long URL Editor 主功能界面：长短URL编辑器（主页）
 app.get("/urls", (req, res) => {
-  let id = req.cookies["userID"];
+  //let id = req.cookies["userID"];
+  let id = req.session.user_id;
   let templateVars = {};
   if(users[id]) {
     templateVars = {
@@ -202,13 +206,15 @@ app.post("/urls", (req, res) => {
   }
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = longURL;
-  urlDatabase[shortURL].UID = req.cookies["userID"];
+  //urlDatabase[shortURL].UID = req.cookies["userID"];
+  urlDatabase[shortURL].UID = req.session.user_id;
   res.redirect("/urls");
 });
 
 // 4. Create New Short URL 新建URL链接缩写
 app.get("/urls/new", (req, res) => {
-  let id = req.cookies["userID"];
+  //let id = req.cookies["userID"];
+  let id = req.session.user_id;
   let templateVars = {};
   if(users[id]) {
     templateVars = {
@@ -224,7 +230,8 @@ app.get("/urls/new", (req, res) => {
 
 // 5. Edit & Update Exist Short URL 编辑更新已有短URL
 app.get("/urls/:shortURL", (req, res) => {
-  let id = req.cookies["userID"];
+  //let id = req.cookies["userID"];
+  let id = req.session.user_id;
   let templateVars = {};
   if(users[id]) {
     templateVars = {

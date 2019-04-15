@@ -47,18 +47,18 @@
 
     <table class="text-center" align="center">
       <tr>
-        <% if(userInfo === false){ %>
-
-        <% } else { %>
-          <td>
-            <a class="alert-link" style="margin: 1em">
+        <td>
+          <a class="alert-link" style="margin: 1em">
+            <% if(userInfo === false  && Object.keys(urls).length === 0) { %>
+              No Tiny URL List
+            <% } else { %>
               Tiny URL List
-            </a>
-          </td>
-          <td>
-            |
-          </td>
-        <% } %>
+            <% } %>
+          </a>
+        </td>
+        <td>
+          |
+        </td>
         <td>
           <% if(userInfo === false){ %>
             <a class="alert-link" href="/login" style="margin: 1em">
@@ -71,11 +71,13 @@
       </tr>
     </table>
     <br>
-    <% if(userInfo === false){ %>
+    <% if(userInfo === false && Object.keys(urls).length === 0){ %>
       <div class="alert alert-info text-center" role="alert">
-        <h5>Here is an example of Tiny URL:</h5>
+        <h5>No One Has Created A Tiny URL. Be The First One !</h5>
         <br>
+        <h5>Here are examples of Tiny URL:</h5>
         <h5><b>b2xVn2 -> http://www.lighthouselabs.ca</b></h5>
+        <h5><b>9sm5xK -> http://www.google.ca</b></h5>
         <br>
         <h5>Login to create your own Tiny URL List.</h5>
       </div>
@@ -96,7 +98,6 @@
             <% if(urls[key].UID === userInfo.id){ %>
               <td>
                 <form class="form-inline" method="GET" action="/urls/<%= key%>/update" style="margin: 1em">
-                  <!-- <a class="alert-link" href="/urls/<%= key%>/update" style="margin: 1em">Edit</a>-->
                   <button type="submit" class="btn btn-info" >Edit</button>
                 </form>
               </td>
